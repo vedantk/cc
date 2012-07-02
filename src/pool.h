@@ -10,8 +10,6 @@
 #include <basic.h>
 SOURCE_DECL
 
-#include <pthread.h>
-
 typedef struct pool pool;
 typedef void (*POOL_worker)(cval obj, cval ctx);
 

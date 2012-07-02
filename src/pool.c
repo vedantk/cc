@@ -7,6 +7,7 @@ SOURCE_DECL
 
 #include <alist.h>
 #include <unistd.h>
+#include <pthread.h>
 
 enum job_flags {
 	NORMAL = 1 << 0,
