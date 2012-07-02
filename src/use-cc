@@ -7,9 +7,37 @@ lookup = {
     'LL': 'queue',
     'AL': 'alist',
     'HT': 'htable',
+    'POOL': 'pool',
 }
 
-sys.stdout.write('-I{0} '.format(base_inc))
-sys.stdout.write('{0}/basic.o '.format(base_obj))
-for arg in sys.argv[1:]:
-    sys.stdout.write('{0}/{1}.o '.format(base_obj, lookup.get(arg, arg)))
+dependence = {
+    'queue': ['basic'],
+    'alist': ['basic'],
+    'htable': ['basic'],
+    'pool': ['AL'],
+}
+
+def include():
+    sys.stdout.write('-I{0} '.format(base_inc))
+
+def link(obj):
+    sys.stdout.write('{0}/{1}.o '.format(base_obj, obj))
+
+def resolve(obj):
+    objs = set([obj])
+    for dependency in dependence.get(obj, []):
+        objs.add(dependency)
+        objs.update(resolve(dependency))
+    return objs
+
+def main():
+    include()
+    objects = set()
+    for arg in sys.argv[1:]:
+        canon = lookup.get(arg, arg)
+        objects.update(resolve(canon))
+    for obj in objects:
+        link(obj)
+
+if __name__ == '__main__':
+    main()
