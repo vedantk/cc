@@ -172,7 +172,7 @@ void HT_clear(htable* ht) {
 	ht->nullval = nil;
 	ht->max_size = START_SIZE;
 	SET_THRESH(ht);
-	free(ht->table);
+	MEM_free(ht->table);
 	safe_calloc(ht->table, PAIR, START_SIZE, return);
 }
 
