@@ -98,7 +98,7 @@ bool POOL_submit_job(pool* p, cval data, cval ctx) {
 	return false;
 }
 
-size_t POOL_get_nr_workers(pool* p) {
+int POOL_get_nr_workers(pool* p) {
 	return AL_size(p->workers);
 }
 

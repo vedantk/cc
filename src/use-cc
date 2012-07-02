@@ -14,7 +14,11 @@ dependence = {
     'queue': ['basic'],
     'alist': ['basic'],
     'htable': ['basic'],
-    'pool': ['AL'],
+    'pool': ['alist'],
+}
+
+special = {
+    'pool': '-lpthread ',
 }
 
 def include():
@@ -22,6 +26,9 @@ def include():
 
 def link(obj):
     sys.stdout.write('{0}/{1}.o '.format(base_obj, obj))
+
+def specific(obj):
+    sys.stdout.write(special.get(obj, ''))
 
 def resolve(obj):
     objs = set([obj])
@@ -36,6 +43,7 @@ def main():
     for arg in sys.argv[1:]:
         canon = lookup.get(arg, arg)
         objects.update(resolve(canon))
+        specific(canon)
     for obj in objects:
         link(obj)
 
