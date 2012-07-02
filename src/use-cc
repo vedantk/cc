@@ -1,0 +1,15 @@
+#!/usr/bin/python
+
+import sys
+
+lookup = {
+    'Q': 'queue',
+    'LL': 'queue',
+    'AL': 'alist',
+    'HT': 'htable',
+}
+
+sys.stdout.write('-I{0} '.format(base_inc))
+sys.stdout.write('{0}/basic.o '.format(base_obj))
+for arg in sys.argv[1:]:
+    sys.stdout.write('{0}/{1}.o '.format(base_obj, lookup.get(arg, arg)))
