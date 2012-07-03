@@ -14,10 +14,17 @@ struct htable {
 	u32	size;
 	u32	deleted;
 	u32	max_size;
+
+	/* A rehash is triggered when the current size exceeds the 'put'
+	 * threshold, and when the number of deleted elements exceeds the
+	 * 'delete' threshold. */
 	u32	rehash_put_thresh;
 	u32	rehash_del_thresh;
+
+	/* The PAIR array doesn't support null keys, so nullval was added. */
 	PAIR*	table;
 	cval	nullval;
+
 	key_cmp	cmp_fn;
 	key_hash hash_fn;
 };
@@ -27,6 +34,7 @@ struct htable {
 #define START_SIZE	(1 << 3)
 #define MAGIC		((void*) 0xCAFEBABE)
 
+/* A method for traversing potential indices in the table. */
 #define STEP(ht, _hash, _step) \
 	hash = (_hash + _step) % ht->max_size; \
 
@@ -36,6 +44,9 @@ struct htable {
 #define IS_FULL(ht, _idx) \
 	(ht->table[_idx].key.ptr) \
 
+/* During collision resolution, it's possible to step across keys that were
+ * removed from the table. Magic values are needed to ensure that table
+ * accesses don't terminate early. */
 #define IS_OCCUPIED(ht, _idx) \
 	(IS_FULL(ht, _idx) || ht->table[_idx].val.ptr == MAGIC) \
 
