@@ -14,11 +14,11 @@ dependence = {
     'queue': ['basic'],
     'alist': ['basic'],
     'htable': ['basic'],
-    'pool': ['alist'],
+    'pool': ['queue', 'alist'],
 }
 
 special = {
-    'pool': '-lpthread ',
+    'pool': '-lrt -lpthread ',
 }
 
 def include():

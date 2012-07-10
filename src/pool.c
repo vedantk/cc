@@ -5,27 +5,23 @@
 #include <pool.h>
 SOURCE_DECL
 
-#include <alist.h>
-#include <unistd.h>
+#include <semaphore.h>
 #include <pthread.h>
 
-enum job_flags {
-	NORMAL = 1 << 0,
-	SHUTDOWN = 1 << 1,
-};
+#include <queue.h>
+#include <alist.h>
 
 typedef struct {
-	u8	flags;
 	cval	data;
 	cval	context;
 } job;
 
 typedef struct {
-	/* Data is written into fd[1] and read from fd[0]. */
-	int 	fd[2];	
-
-	pthread_t thread;
+	queue*	jobs;
+	sem_t	jobs_sem;
+	pthread_mutex_t jobs_lock;
 	POOL_worker callback;
+	pthread_t thread;
 } engine;
 
 struct pool {
@@ -33,24 +29,44 @@ struct pool {
 	alist*	workers; /* [engine*] */
 };
 
+#define WITH(lck, body) { \
+	pthread_mutex_lock(&lck); \
+	{ body; } \
+	pthread_mutex_unlock(&lck); \
+}
+
+static cval new_job(cval data, cval ctx) {
+	job* input;
+	safe_new(input, job, return nil);
+	input->data = data;
+	input->context = ctx;
+	return cvptr(input);
+}
+
 static void* dispatcher(void* arg) {
 	engine* e = arg;
 	while (true) {
-		job input;
-		if (read(e->fd[0], &input, sizeof(job)) != sizeof(job)) {
+		if (sem_wait(&e->jobs_sem) != 0) {
 			continue;
 		}
 
-		if (input.flags & NORMAL) {
-			e->callback(input.data, input.context);
-		}
+		job* input;
+		WITH(e->jobs_lock, {
+			input = Q_front(e->jobs).ptr;
+			Q_pop_front(e->jobs);
+		});
 
-		if (input.flags & SHUTDOWN) {
+		if (!input) {
 			break;
 		}
+
+		e->callback(input->data, input->context);
+		MEM_free(input);
 	}
-	close(e->fd[0]);
-	close(e->fd[1]);
+
+	Q_foreach(e->jobs, DTOR_free, nil);
+	pthread_mutex_destroy(&e->jobs_lock);
+	sem_destroy(&e->jobs_sem);
 	MEM_free(e);
 	pthread_exit(NULL);
 	return NULL;
@@ -70,17 +86,34 @@ void POOL_alloc(pool* p, int nr, POOL_worker f) {
 	for (int i=0; i < nr; ++i) {
 		engine* e;
 		safe_new(e, engine, return);
-		if (pipe(e->fd) != 0) {
-			MEM_free(e);
-			return;
-		}
 		e->callback = f;
+		if (!(e->jobs = Q_new())) {
+			goto del0;
+		}
+		if (pthread_mutex_init(&e->jobs_lock, NULL) != 0) {
+			goto del1;
+		}
+		if (sem_init(&e->jobs_sem, 0, 0) != 0) {
+			goto del2;
+		}
+
 		int err = pthread_create(&e->thread, NULL, dispatcher, e);
 		if (err != 0) {
-			MEM_free(e);
-			return;
+			goto del3;
 		}
+
 		AL_push_back(p->workers, cvptr(e));
+		continue;
+
+del3:
+		sem_destroy(&e->jobs_sem);
+del2:
+		pthread_mutex_destroy(&e->jobs_lock);
+del1:
+		Q_free(e->jobs);
+del0:
+		MEM_free(e);
+		return;
 	}
 }
 
@@ -88,15 +121,10 @@ bool POOL_submit_job(pool* p, cval data, cval ctx) {
 	int cur = (p->last + 1) % POOL_get_nr_workers(p);
 	p->last = cur;
 	engine* worker = AL_get(p->workers, cur).ptr;
-	job input = {
-		.flags = NORMAL,
-		.data = data,
-		.context = ctx,
-	};
-	if (write(worker->fd[1], &input, sizeof(job)) == sizeof(job)) {
-		return true;
-	}
-	return false;
+	WITH(worker->jobs_lock,
+		Q_push_back(worker->jobs, new_job(data, ctx));
+	);
+	return sem_post(&worker->jobs_sem) == 0;
 }
 
 int POOL_get_nr_workers(pool* p) {
@@ -104,13 +132,9 @@ int POOL_get_nr_workers(pool* p) {
 }
 
 static int shutdown_engine(cval worker, cval ctx) {
-	job kill = {
-		.flags = SHUTDOWN,
-		.data = nil,
-		.context = ctx,
-	};
+	(void) ctx;
 	engine* e = worker.ptr;
-	write(e->fd[1], &kill, sizeof(job));
+	Q_push_back(e->jobs, cvptr(NULL));
 	return 0;
 }
 
