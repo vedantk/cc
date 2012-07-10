@@ -14,7 +14,7 @@ dependence = {
     'queue': ['basic'],
     'alist': ['basic'],
     'htable': ['basic'],
-    'pool': ['queue', 'alist'],
+    'pool': ['pair', 'queue', 'alist'],
 }
 
 special = {

@@ -8,13 +8,9 @@ SOURCE_DECL
 #include <semaphore.h>
 #include <pthread.h>
 
+#include <pair.h>
 #include <queue.h>
 #include <alist.h>
-
-typedef struct {
-	cval	data;
-	cval	context;
-} job;
 
 typedef struct {
 	queue*	jobs;
@@ -35,14 +31,6 @@ struct pool {
 	pthread_mutex_unlock(&lck); \
 }
 
-static cval new_job(cval data, cval ctx) {
-	job* input;
-	safe_new(input, job, return nil);
-	input->data = data;
-	input->context = ctx;
-	return cvptr(input);
-}
-
 static void* dispatcher(void* arg) {
 	engine* e = arg;
 	while (true) {
@@ -50,7 +38,7 @@ static void* dispatcher(void* arg) {
 			continue;
 		}
 
-		job* input;
+		PAIR* input;
 		WITH(e->jobs_lock, {
 			input = Q_front(e->jobs).ptr;
 			Q_pop_front(e->jobs);
@@ -60,7 +48,7 @@ static void* dispatcher(void* arg) {
 			break;
 		}
 
-		e->callback(input->data, input->context);
+		e->callback(input->first, input->second);
 		MEM_free(input);
 	}
 
@@ -122,7 +110,7 @@ bool POOL_submit_job(pool* p, cval data, cval ctx) {
 	p->last = cur;
 	engine* worker = AL_get(p->workers, cur).ptr;
 	WITH(worker->jobs_lock,
-		Q_push_back(worker->jobs, new_job(data, ctx));
+		Q_push_back(worker->jobs, PAIR_new(data, ctx));
 	);
 	return sem_post(&worker->jobs_sem) == 0;
 }
@@ -134,7 +122,7 @@ int POOL_get_nr_workers(pool* p) {
 static int shutdown_engine(cval worker, cval ctx) {
 	(void) ctx;
 	engine* e = worker.ptr;
-	Q_push_back(e->jobs, cvptr(NULL));
+	Q_push_back(e->jobs, nil);
 	return 0;
 }
 
