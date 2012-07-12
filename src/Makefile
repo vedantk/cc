@@ -1,5 +1,7 @@
 CC = clang
 CFLAGS = -Wall -Wextra -std=gnu99 -I. -Os
+SCAN = sourceanalyzer
+SCANFLAGS = -debug -verbose 
 
 BASE_OBJ = /usr/local/lib/cc
 BASE_INC = /usr/local/include/cc
@@ -25,3 +27,7 @@ uninstall:
 
 clean: 
 	rm -f *.o
+
+scan:
+	$(SCAN) $(SCANFLAGS) -b cc gcc $(CFLAGS) -c $(wildcard *.c)
+	$(SCAN) $(SCANFLAGS) -b cc -scan
