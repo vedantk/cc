@@ -5,13 +5,13 @@ int main() {
 	alist* al = AL_new();
 	assert(AL_size(al) == 0);
 
-	AL_insert(al, 0, cval_s32(1));
+	AL_insert(al, 0, cvpod(1));
 	assert(AL_pop_back(al).i32 == 1);
 	assert(AL_size(al) == 0);
 
 	for (int i=0; i < 256; ++i) {
-		AL_push_back(al, cval_s32(i + 1));
-		AL_push_back(al, cval_s32(i + 2));
+		AL_push_back(al, cvpod(i + 1));
+		AL_push_back(al, cvpod(i + 2));
 		assert(AL_pop_back(al).i32 == (i + 2));
 	}
 
@@ -28,7 +28,7 @@ int main() {
 	}
 
 	for (int i=0; i < 10000; ++i) {
-		AL_push_back(al, cval_s32(i));
+		AL_push_back(al, cvpod(i));
 	}
 
 	for (int i=0; i < 9900; ++i) {

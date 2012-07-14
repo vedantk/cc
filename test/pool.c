@@ -1,4 +1,5 @@
 #include <cc/pool.h>
+#include <unistd.h>
 
 static int ctr = 0;
 
@@ -17,7 +18,8 @@ int main() {
 	POOL_submit_job(p, nil, cvptr("Hallo"));
 	POOL_submit_job(p, nil, cvptr("Gutbyy"));
 	printf("workers = %d\n", POOL_get_nr_workers(p));
-	while (ctr < 4) {};
+	while (ctr < 4);
 	POOL_free(p);
+	sleep(1);
 	return 0;
 }

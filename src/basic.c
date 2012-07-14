@@ -10,31 +10,6 @@ void* (*MEM_calloc)(size_t nr, size_t sz) = calloc;
 void* (*MEM_realloc)(void* ptr, size_t sz) = realloc;
 void (*MEM_free)(void* ptr) = free;
 
-#define DEF_CVAL_CTOR(_type_) \
-	cval cval_ ## _type_ (_type_ v) { \
-		cval data; \
-		data.i64 = 0; \
-		memcpy(&data, &v, sizeof(v)); \
-		return data; \
-	}
-
-DEF_CVAL_CTOR(s8);
-DEF_CVAL_CTOR(s16);
-DEF_CVAL_CTOR(s32);
-DEF_CVAL_CTOR(s64);
-DEF_CVAL_CTOR(u8);
-DEF_CVAL_CTOR(u16);
-DEF_CVAL_CTOR(u32);
-DEF_CVAL_CTOR(u64);
-DEF_CVAL_CTOR(long);
-DEF_CVAL_CTOR(ulong);
-DEF_CVAL_CTOR(float);
-DEF_CVAL_CTOR(double);
-DEF_CVAL_CTOR(bool);
-DEF_CVAL_CTOR(size_t);
-
-#undef DEF_CVAL_CTOR
-
 void debugf(const char* fmt, ...) {
 	va_list ap;
 	va_start(ap, fmt);

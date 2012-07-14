@@ -72,33 +72,19 @@ typedef union {
 	u8*	ubuf;
 } cval;
 
-#define cvpod(pod)	((cval) (pod))
+#define cvpod(pod) \
+	((sizeof(pod) == 1) ? ((cval) (0xffUL & (pod))) \
+	: (sizeof(pod) == 2) ? ((cval) (0xffffUL & (pod))) \
+	: (sizeof(pod) == 4) ? ((cval) (0xffffffffUL & (pod))) \
+	: (cval) (pod))
+
+#define cvnum(pod)	((cval) (pod))
 #define cvptr(ptr)	((cval) ((void*) (ptr)))
 #define nil		cvptr(0)
 
 typedef int (*foreach_fn)(cval data, cval ctx);
 typedef int (*key_cmp)(const cval lhs, const cval rhs);
 typedef u32 (*key_hash)(const cval key);
-
-#define DEF_CVAL_CTOR(_type_) \
-	cval cval_ ## _type_ (_type_ v);
-
-DEF_CVAL_CTOR(s8);
-DEF_CVAL_CTOR(s16);
-DEF_CVAL_CTOR(s32);
-DEF_CVAL_CTOR(s64);
-DEF_CVAL_CTOR(u8);
-DEF_CVAL_CTOR(u16);
-DEF_CVAL_CTOR(u32);
-DEF_CVAL_CTOR(u64);
-DEF_CVAL_CTOR(long);
-DEF_CVAL_CTOR(ulong);
-DEF_CVAL_CTOR(float);
-DEF_CVAL_CTOR(double);
-DEF_CVAL_CTOR(bool);
-DEF_CVAL_CTOR(size_t);
-
-#undef DEF_CVAL_CTOR
 
 void	debugf(const char* fmt, ...);
 void	bprint(char* data, u32 len);
