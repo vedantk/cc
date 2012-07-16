@@ -29,5 +29,6 @@ clean:
 	rm -f *.o
 
 scan:
+	$(SCAN) -b cc -clean
 	$(SCAN) $(SCANFLAGS) -b cc gcc $(CFLAGS) -c $(wildcard *.c)
 	$(SCAN) $(SCANFLAGS) -b cc -scan

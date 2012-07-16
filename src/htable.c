@@ -189,7 +189,7 @@ void HT_clear(htable* ht) {
 
 void HT_foreach(htable* ht, foreach_fn fn, cval ctx) {
 	for (u32 i = 0; i < ht->max_size; ++i) {
-		fn(cvpod(ht->table[i].val), ctx);
+		fn(ht->table[i].val, ctx);
 	}
 	fn(ht->nullval, ctx);
 }
