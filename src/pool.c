@@ -26,9 +26,10 @@ struct pool {
 };
 
 #define WITH(lck, body) { \
-	pthread_mutex_lock(&lck); \
-	{ body; } \
-	pthread_mutex_unlock(&lck); \
+	if (pthread_mutex_lock(&lck) == 0) { \
+		{ body; } \
+		pthread_mutex_unlock(&lck); \
+	} \
 }
 
 static void* dispatcher(void* arg) {
