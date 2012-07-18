@@ -31,7 +31,6 @@ void AL_resize(alist* li, u32 len) {
 	if (arr) {
 		li->arr = arr;
 	} else {
-		AL_free(li);
 		debugf(OOM);
 	}
 }

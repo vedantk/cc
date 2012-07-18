@@ -1,6 +1,6 @@
 CC = clang
 CFLAGS = -Wall -Wextra -std=gnu99 -I. -Os
-SCAN = sourceanalyzer
+SCAN = SCA_VM_OPTS="" sourceanalyzer
 SCANFLAGS = -debug -verbose 
 
 BASE_OBJ = /usr/local/lib/cc
