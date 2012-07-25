@@ -58,8 +58,7 @@ struct htable {
 	ht->rehash_del_thresh = (u32) (MAXDEL_LOAD * ht->max_size); \
 
 htable* HT_new(key_cmp cmp, key_hash hash) {
-	htable* ht;
-	safe_new(ht, htable, return NULL);
+	safe_create(htable, ht, return NULL);
 	ht->max_size = START_SIZE;
 	ht->cmp_fn = cmp;
 	ht->hash_fn = hash;

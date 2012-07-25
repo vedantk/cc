@@ -6,8 +6,7 @@
 SOURCE_DECL
 
 cval PAIR_new(cval first, cval second) {
-	PAIR* p;
-	safe_new(p, PAIR, return nil);
+	safe_create(PAIR, p, return nil);
 	p->first = first;
 	p->second = second;
 	return cvptr(p);

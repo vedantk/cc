@@ -6,8 +6,7 @@
 SOURCE_DECL
 
 node* LL_new(cval c, node* next) {
-	node* li;
-	safe_new(li, node, return NULL);
+	safe_create(node, li, return NULL);
 	li->data = c;
 	li->next = next;
 	return li;

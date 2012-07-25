@@ -62,8 +62,7 @@ static void* dispatcher(void* arg) {
 }
 
 pool* POOL_new() {
-	pool* p;
-	safe_new(p, pool, return NULL);
+	safe_create(pool, p, return NULL);
 	if (!(p->workers = AL_new())) {
 		MEM_free(p);
 		return NULL;
@@ -73,8 +72,7 @@ pool* POOL_new() {
 
 void POOL_alloc(pool* p, int nr, POOL_worker f) {
 	for (int i=0; i < nr; ++i) {
-		engine* e;
-		safe_new(e, engine, return);
+		safe_create(engine, e, return);
 		e->callback = f;
 		if (!(e->jobs = Q_new())) {
 			goto del0;

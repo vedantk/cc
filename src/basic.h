@@ -34,6 +34,10 @@ extern void (*MEM_free)(void* ptr);
 		if ((var = MEM_calloc(1, sizeof(type))) == NULL) { stmt; } \
 	} \
 
+#define safe_create(type, var, stmt) \
+	type* var = MEM_calloc(1, sizeof(type)); \
+	if (var == NULL) { stmt; } \
+
 #define safe_calloc(var, type, nr, stmt) { \
 		if ((var = MEM_calloc(nr, sizeof(type))) == NULL) { stmt; } \
 	} \
@@ -78,8 +82,13 @@ typedef union {
 	: (sizeof(pod) == 4) ? ((cval) (0xffffffffUL & (pod))) \
 	: (cval) (pod))
 
-#define cvnum(pod)	((cval) (pod))
+#define cvflov(flov) \
+	((sizeof(flov) == 4) ? \
+	 ((cval) (0xffffffffUL & ((u64) *((u32*) &(flov))))) \
+	: (cval) (flov))
+
 #define cvptr(ptr)	((cval) ((void*) (ptr)))
+
 #define nil		cvptr(0)
 
 typedef int (*foreach_fn)(cval data, cval ctx);

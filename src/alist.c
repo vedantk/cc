@@ -8,8 +8,7 @@ SOURCE_DECL
 #define START_SIZE	1 << 3
 
 alist* AL_new() {
-	alist* al;
-	safe_new(al, alist, return NULL);
+	safe_create(alist, al, return NULL);
 	al->cur = 0;
 	al->max = START_SIZE;
 	safe_calloc(al->arr, cval, al->max, return NULL);
