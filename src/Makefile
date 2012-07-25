@@ -1,8 +1,5 @@
 CC = clang
 CFLAGS = -Wall -Wextra -std=gnu99 -I. -Os
-SCAN = SCA_VM_OPTS="" sourceanalyzer
-SCANFLAGS = -debug -verbose 
-
 BASE_OBJ = /usr/local/lib/cc
 BASE_INC = /usr/local/include/cc
 USE_CC_DIR = /usr/local/bin
@@ -29,6 +26,6 @@ clean:
 	rm -f *.o
 
 scan:
-	$(SCAN) -b cc -clean
-	$(SCAN) $(SCANFLAGS) -b cc gcc $(CFLAGS) -c $(wildcard *.c)
-	$(SCAN) $(SCANFLAGS) -b cc -scan
+	sourceanalyzer -b cc -clean
+	sourceanalyzer -b cc gcc $(CFLAGS) -c $(wildcard *.c)
+	sourceanalyzer -b cc -scan
