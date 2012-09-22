@@ -8,6 +8,7 @@ lookup = {
     'AL': 'alist',
     'HT': 'htable',
     'POOL': 'pool',
+    'PAIR': 'pair',
 }
 
 dependence = {
