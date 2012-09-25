@@ -30,21 +30,24 @@ extern void (*MEM_free)(void* ptr);
 
 #define OOM	"Out of memory."
 
-#define safe_new(var, type, stmt) { \
-		if ((var = MEM_calloc(1, sizeof(type))) == NULL) { stmt; } \
-	} \
+#define safe_new(var, type, stmt) \
+{ \
+	if ((var = MEM_calloc(1, sizeof(type))) == NULL) { stmt; } \
+} \
 
 #define safe_create(type, var, stmt) \
 	type* var = MEM_calloc(1, sizeof(type)); \
 	if (var == NULL) { stmt; } \
 
-#define safe_calloc(var, type, nr, stmt) { \
-		if ((var = MEM_calloc(nr, sizeof(type))) == NULL) { stmt; } \
-	} \
+#define safe_calloc(var, type, nr, stmt) \
+{ \
+	if ((var = MEM_calloc(nr, sizeof(type))) == NULL) { stmt; } \
+} \
 
-#define safe_malloc(var, size, stmt) { \
-		if ((var = MEM_malloc(size)) == NULL) { stmt; } \
-	} \
+#define safe_malloc(var, size, stmt) \
+{ \
+	if ((var = MEM_malloc(size)) == NULL) { stmt; } \
+} \
 
 typedef int8_t s8;
 typedef int16_t s16;

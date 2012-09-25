@@ -1,5 +1,5 @@
 CC = clang
-CFLAGS = -Wall -Wextra -std=gnu99 -I. -Os
+CFLAGS = -Wall -Wextra -std=gnu99 -I. -O2
 BASE_OBJ = /usr/local/lib/cc
 BASE_INC = /usr/local/include/cc
 USE_CC_DIR = /usr/local/bin

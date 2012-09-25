@@ -5,6 +5,7 @@
 #ifndef PROFILE_H
 #define PROFILE_H
 
+#include <assert.h>
 #include <sys/time.h>
 
 #define TIMEIT_USECS(var, block) \
